@@ -1,0 +1,11 @@
+---
+- name: reload angie
+  ansible.builtin.service:
+    name: angie
+    state: reloaded
+
+- name: restart angie
+  ansible.builtin.service:
+    name: angie
+    state: restarted
+    enabled: true

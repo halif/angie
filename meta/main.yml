@@ -1,0 +1,27 @@
+---
+galaxy_info:
+  role_name: angie
+  author: Ildar Zagidullin
+  description: Ansible role to install and configure Angie web server on Debian/Ubuntu.
+  license: MIT
+  min_ansible_version: "2.12"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal   # 20.04
+        - jammy   # 22.04
+        - noble   # 24.04
+    - name: Debian
+      versions:
+        - bullseye # 11
+        - bookworm # 12
+
+  galaxy_tags:
+    - web
+    - webserver
+    - angie
+    - nginx
+    - proxy
+
+dependencies: []

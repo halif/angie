@@ -1,0 +1,45 @@
+---
+# === Global settings ===
+angie_enable_acme: true                  # включить модуль ACME
+angie_acme_email: "kasimov-aa@gitinsky.com"  # e‑mail для регистрации LE
+
+# Путь, где Angie хранит выпущенные LE‑серты
+angie_ssl_base: "/var/lib/angie/acme"
+
+# Корневой/промежуточный CA, которым подписаны **клиентские** cert’ы
+angie_clients_ca_src: "clients_ca.pem"       # файл в каталоге role/files
+angie_clients_ca_dest: "/etc/ssl/angie/clients_ca.pem"
+
+# Проверочный лист отозванных сертификатов
+angie_clients_crl_dest: "/etc/ssl/angie/clients_crl.pem"
+
+# === mTLS‑сайты ===
+# Список словарей; каждый формирует отдельный `server {}` на 443.
+# Минимально:
+#   - domain: example.com     # FQDN (SNI)
+#     backend: http://ip:port/
+# Дополнительно:
+#   - locations:              # список location’ов вместо backend
+#   - ssl_cert / ssl_key:     # путём к кастомному сертификату сервера
+angie_mtls_sites: []
+
+# === Plain HTTPS proxy sites (without mTLS client cert verification) ===
+# Каждый item:
+#   domain: turn.example.com          (обяз.)
+#   backend: http://ip:port/          (обяз.)
+#   host_header: backend.example.com  (optional, default $host)
+#   ssl_cert / ssl_key:               (optional, если не используем ACME)
+angie_plain_proxy_sites: []
+
+# Proxy headers hash tuning (suppresses warnings on many proxy_set_header directives)
+angie_proxy_headers_hash_max_size: 1024
+angie_proxy_headers_hash_bucket_size: 128
+
+# === Extra plain‑HTTP servers ===
+# Каждый item:
+#   listen: 80 | "[::]:8080 default_server" (по умолч. 80)
+#   server_name: wiki.example.com (обяз.)
+#   proxy_pass:  http://ip:port/      (обяз.)
+#   add_host_header: true/false       (default true)
+#   add_real_ip_header: true/false    (default true)
+angie_extra_servers_acme: []
