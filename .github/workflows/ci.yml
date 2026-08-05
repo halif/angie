@@ -27,10 +27,13 @@ jobs:
 
       - name: Check Role syntax
         run: |
-          echo "- hosts: localhost
+          # Создаем плейбук, который подключает таски из текущей директории
+          echo '- hosts: localhost
             tasks:
-              - name: Import role
-                ansible.builtin.import_role:
-                  name: '${GITHUB_REPOSITORY##*/}'" > ephemeral_test.yml
+              - name: Check tasks syntax
+                ansible.builtin.include_role:
+                  name: "."
+                  tasks_from: main.yml' > ephemeral_test.yml
 
+          # Проверяем синтаксис
           ansible-playbook ephemeral_test.yml --syntax-check
