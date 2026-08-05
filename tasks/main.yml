@@ -1,129 +1,18 @@
 ---
-- name: Install prerequisite packages
-  ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - curl
-      - lsb-release
-    state: present
-    update_cache: yes
-  tags: [install]
-
-- name: Ensure directory for APT keyrings exists
-  ansible.builtin.file:
-    path: /etc/apt/keyrings
-    state: directory
-    mode: "0755"
-
-- name: Download Angie signing key
-  ansible.builtin.get_url:
-    url: https://angie.software/keys/angie-signing.gpg
-    dest: /etc/apt/keyrings/angie-signing.gpg
-    mode: "0644"
-  tags: [repo]
-
-- name: Add Angie APT repository (OSS channel)
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/etc/apt/keyrings/angie-signing.gpg] https://download.angie.software/angie/ubuntu/{{ ansible_distribution_version }} {{ ansible_lsb.codename }} main"
-    filename: angie
-    update_cache: yes
-    state: present
-  tags: [repo]
+- name: Setup Angie repository for OS family
+  ansible.builtin.include_tasks: "setup-{{ ansible_os_family }}.yml"
+  when: angie_manage_repo | bool
 
 - name: Install Angie package
-  ansible.builtin.apt:
+  ansible.builtin.package:
     name: angie
-    state: present
-  tags: [install]
+    state: "{{ angie_package_state }}"
+  tags: [angie, install]
   notify: restart angie
 
-- name: Ensure directories for SSL & conf.d exist
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-  loop:
-    - /etc/ssl/angie
-    - /etc/angie/conf.d
-  tags: [config]
-
-- name: Deploy client CA bundle
-  ansible.builtin.copy:
-    src: "{{ angie_clients_ca_src }}"
-    dest: "{{ angie_clients_ca_dest }}"
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render ACME config
-  ansible.builtin.template:
-    src: 00-global_acme.conf.j2
-    dest: /etc/angie/http.d/00-global_acme.conf
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render global proxy tuning config
-  ansible.builtin.template:
-    src: 01-proxy_tuning.conf.j2
-    dest: /etc/angie/http.d/01-proxy_tuning.conf
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render mTLS 1C virtual‑hosts
-  ansible.builtin.template:
-    src: mtls.conf.j2
-    dest: /etc/angie/http.d/mtls.conf
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render mTLS RDS virtual‑hosts
-  ansible.builtin.template:
-    src: mtls_rds.conf.j2
-    dest: /etc/angie/http.d/mtls_rds.conf
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render plain TLS reverse-proxy virtual-hosts (without mTLS)
-  ansible.builtin.template:
-    src: plain_proxy.conf.j2
-    dest: /etc/angie/http.d/plain_proxy.conf
-    owner: root
-    group: root
-    mode: "0644"
-  tags: [config]
-  notify: reload angie
-
-- name: Render extra plain‑HTTP servers (if any)
-  ansible.builtin.template:
-    src: extra_servers_acme.conf.j2
-    dest: /etc/angie/http.d/extra_servers_acme.conf
-    owner: root
-    group: root
-    mode: "0644"
-  when: angie_extra_servers_acme | length > 0
-  tags: [config]
-  notify: reload angie
-
-- name: Remove extra_servers_acme.conf when list is empty (cleanup)
-  ansible.builtin.file:
-    path: /etc/angie/conf.d/extra_servers_acme.conf
-    state: absent
-  when: angie_extra_servers_acme | length == 0
-  tags: [config]
-  notify: reload angie
+- name: Ensure Angie service is running and enabled
+  ansible.builtin.service:
+    name: angie
+    state: "{{ angie_service_state }}"
+    enabled: "{{ angie_service_enabled }}"
+  tags: [angie, service]

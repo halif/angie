@@ -1,0 +1,20 @@
+---
+- name: Set Angie repository OS identifier for RedHat family
+  ansible.builtin.set_fact:
+    angie_repo_os: >-
+      {% if ansible_distribution in ['Rocky', 'AlmaLinux', 'CentOS'] %}centos
+      {%- elif ansible_distribution == 'RedHat' %}rhel
+      {%- elif ansible_distribution == 'OracleLinux' %}oracle
+      {%- else %}{{ ansible_distribution | lower }}
+      {%- endif %}
+  tags: [angie, repo]
+
+- name: Add Angie YUM/DNF repository
+  ansible.builtin.yum_repository:
+    name: angie
+    description: Angie Official Repository
+    baseurl: "https://download.angie.software/angie/{{ angie_repo_os }}/$releasever/$basearch/"
+    gpgkey: https://angie.software/keys/angie-signing.gpg
+    gpgcheck: true
+    enabled: true
+  tags: [angie, repo]

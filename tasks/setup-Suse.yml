@@ -1,0 +1,14 @@
+---
+- name: Set Angie repository OS identifier for SUSE family
+  ansible.builtin.set_fact:
+    angie_repo_os: "{{ 'sles' if ansible_distribution == 'SLES' else 'opensuse' }}"
+  tags: [angie, repo]
+
+- name: Add Angie Zypper repository
+  community.general.zypper_repository:
+    name: angie
+    description: Angie Official Repository
+    repo: "https://download.angie.software/angie/{{ angie_repo_os }}/$releasever/$basearch/"
+    auto_import_keys: true
+    state: present
+  tags: [angie, repo]
