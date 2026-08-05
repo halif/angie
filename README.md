@@ -48,7 +48,7 @@ Or add it to your project's `requirements.yml`:
 ```yaml
 roles:
   - name: halif.angie
-
+```
 
 ## ⚙️ Role Variables
 
