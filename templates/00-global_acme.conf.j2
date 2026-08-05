@@ -1,5 +1,0 @@
-# Managed by Ansible – ACME
-{% if angie_enable_acme %}
-resolver 8.8.8.8;
-acme_client le https://acme-v02.api.letsencrypt.org/directory email={{ angie_acme_email }} account_key={{ angie_ssl_base }}/account.key;
-{% endif %}
