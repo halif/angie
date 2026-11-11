@@ -92,3 +92,6 @@ Upgrade Package to Latest Version
       vars:
         angie_manage_repo: false
 ```
+
+### License
+MIT
